@@ -9,20 +9,9 @@
 clear all;
 clc;
 
-%% Robotics Toolbox initialization
-startup_rvc
 
 % Definizione del robot
 L = [0.1625, 0.425, 0.3922, 0.1333, 0.0997, 0.0996];
-L1 = Link('d',L(1),'a',0,'alpha',pi/2,'m',3.4,'r',[0 0 L(1)/2],'I',[0.01 0.01 0.01 0 0 0]);
-L2 = Link('d',0,'a',L(2),'alpha',0,'m',8.6,'r',[L(2)/2 0 0],'I',[0.1 0.1 0.1 0 0 0]);
-L3 = Link('d',0,'a',L(3),'alpha',0,'m',2.7,'r',[L(3)/2 0 0],'I',[0.05 0.05 0.05 0 0 0]);
-L4 = Link('d',L(4),'a',0,'alpha',pi/2,'m',1.7,'r',[0 0 L(4)/2],'I',[0.02 0.02 0.02 0 0 0]);
-L5 = Link('d',L(5),'a',0,'alpha',-pi/2,'m',1.0,'r',[0 0 L(5)/2],'I',[0.01 0.01 0.01 0 0 0]);
-L6 = Link('d',L(6),'a',0,'alpha',0,'m',0.5,'r',[0 0 L(6)/2],'I',[0.005 0.005 0.005 0 0 0]);
-
-Rob1 = SerialLink([L1 L2 L3 L4 L5 L6],'name','UR5e');
-Rob1.base = [1 0 0 0; 0 -1 0 0; 0 0 -1 0.1625; 0 0 0 1];
 
 % Masses
 m = [3.5, 8, 2.5, 1.5, 0.5, 0.5];
@@ -63,33 +52,3 @@ qpp0 = zeros(6,1);
 q   = q0;    % joint positions
 qp   = qp0;    % joint velocities
 qpp = qpp0;    %joint accelerations
-
-%% ==========================
-% DYNAMIC MODEL
-% ==========================
-
-% Inertia matrix B(q)
-B = Rob1.inertia(q(:)');      % 6x6
-
-% Coriolis / centrifugal matrix C(q, qp)
-C = Rob1.coriolis(q(:)', qp(:)'); % 6x6
-
-% Gravity vector g(q)
-g = Rob1.gravload(q(:)');     % 6x1
-
-%% ==========================
-% Equation of motion
-% tau = B(q) qdd + C(q,qd) qd + g(q)
-% ==========================
-
-tau = B*qpp + C*qp + g;
-
-%% ==========================
-% Save variables for Simulink
-% ==========================
-
-save('UR5e_dyn_data', ...
-     'Rob1', ...
-     'B', 'C', 'g', 'tau', ...
-     'q', 'qp', 'qpp');
-
